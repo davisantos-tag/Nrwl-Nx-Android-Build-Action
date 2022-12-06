@@ -30,9 +30,11 @@ runs:
         java-version: 11
 
     - name: Install dependencies # install project deps with --frozen-lockfile to make sure we will have the same packages version ( very recommended  on running yarn install on ci)
+      shell: bash
       run: npm ci --legacy-peer-deps
 
     - name: Install app dependencies
+      shell: bash
       run: cd ${{ inputs.app-path }} && npm i --legacy-peer-deps
 
     - name: Cache Gradle Wrapper ## configure cash for gradle : will help to reduce build time
@@ -50,9 +52,11 @@ runs:
           ${{ runner.os }}-gradle-caches-
 
     - name: Make Gradlew Executable
+      shell: bash
       run: cd ${{ inputs.app-path }}/android && chmod +x ./gradlew
 
     - name: Generate App APK
+      shell: bash
       run: |
         cd ${{ inputs.app-path }}/android && ./gradlew app:assembleRelease --no-daemon
 
