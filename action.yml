@@ -1,0 +1,67 @@
+name: "Android Release Build"
+description: "Builds an Android project using release variant"
+inputs:
+  app-path:
+    description: "Where the android folder is located"
+    required: true
+    default: "default-app-path"
+  signing-key:
+    description: "Signing Keystore file converted to Base64 format"
+    required: true
+    default: "default-signing-key"
+  keystore-alias:
+    description: "Alias chosen on the Keystore file"
+    required: true
+    default: "default-keystore-alias"
+  keystore-password:
+    description: "Password chosen on the Keystore file"
+    required: true
+    default: "default-keystore-password"
+  key-password:
+    description: "Password chosen to the key"
+    required: true
+    default: "default-key-password"
+runs:
+  using: "composite"
+  steps:
+    - name: Set up our JDK environment # setup JDK environment: mandatory as we need to build  android project
+      uses: actions/setup-java@v1.4.3
+      with:
+        java-version: 11
+
+    - name: Install dependencies # install project deps with --frozen-lockfile to make sure we will have the same packages version ( very recommended  on running yarn install on ci)
+      run: npm ci --legacy-peer-deps
+
+    - name: Install app dependencies
+      run: cd ${{ inputs.app-path }} && npm i --legacy-peer-deps
+
+    - name: Cache Gradle Wrapper ## configure cash for gradle : will help to reduce build time
+      uses: actions/cache@v2 ## TODO FIX THE PATH
+      with:
+        path: ~/.gradle/wrapper
+        key: ${{ runner.os }}-gradle-wrapper-${{ hashFiles('gradle/wrapper/gradle-wrapper.properties') }}
+
+    - name: Cache Gradle Dependencies
+      uses: actions/cache@v2
+      with:
+        path: ~/.gradle/caches
+        key: ${{ runner.os }}-gradle-caches-${{ hashFiles('gradle/wrapper/gradle-wrapper.properties') }}
+        restore-keys: |
+          ${{ runner.os }}-gradle-caches-
+
+    - name: Make Gradlew Executable
+      run: cd ${{ inputs.app-path }}/android && chmod +x ./gradlew
+
+    - name: Generate App APK
+      run: |
+        cd ${{ inputs.app-path }}/android && ./gradlew app:assembleRelease --no-daemon
+
+    - name: Sign APK ## sign generated apk
+      id: sign_app
+      uses: r0adkll/sign-android-release@v1
+      with:
+        releaseDirectory: ${{ inputs.app-path }}/android/app/build/outputs/apk/release
+        signingKeyBase64: ${{ inputs.signing-key }}
+        alias: ${{ inputs.keystore-alias }}
+        keyStorePassword: ${{ inputs.keystore-password }}
+        keyPassword: ${{ inputs.key-password }}
