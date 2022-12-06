@@ -1,4 +1,4 @@
-name: "Android Release Build"
+name: "Nrwl Nx Android Release Builder"
 description: "Builds an Android project using release variant"
 inputs:
   app-path:
