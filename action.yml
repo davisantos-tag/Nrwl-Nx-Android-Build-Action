@@ -5,6 +5,10 @@ inputs:
     description: "Where the android folder is located"
     required: true
     default: "default-app-path"
+  nx-app-name:
+    description: "The NX project name"
+    required: true
+    default: "default-nx-app-name"
   signing-key:
     description: "Signing Keystore file converted to Base64 format"
     required: true
@@ -33,9 +37,9 @@ runs:
       shell: bash
       run: npm ci --legacy-peer-deps
 
-    - name: Install app dependencies
+    - name: Apply symlink from root node_modules
       shell: bash
-      run: cd ${{ inputs.app-path }} && npm i --legacy-peer-deps
+      run: npx nx run ${{ inputs.nx-app-name }}:ensure-symlink
 
     - name: Cache Gradle Wrapper ## configure cash for gradle : will help to reduce build time
       uses: actions/cache@v2 ## TODO FIX THE PATH
