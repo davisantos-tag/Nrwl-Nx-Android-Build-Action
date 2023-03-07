@@ -25,6 +25,10 @@ inputs:
     description: "Password chosen to the key"
     required: true
     default: "default-key-password"
+  variant-flavor:
+    description: "What variant and/or flavor is used for build"
+    required: true
+    default: "devrelease"
 runs:
   using: "composite"
   steps:
@@ -62,7 +66,7 @@ runs:
     - name: Generate App APK
       shell: bash
       run: |
-        cd ${{ inputs.app-path }}/android && ./gradlew app:assembleRelease --no-daemon
+        cd ${{ inputs.app-path }}/android && ./gradlew app:assemble${{ inputs.variant-flavor }} --no-daemon
 
     - name: Sign APK ## sign generated apk
       id: sign_app
