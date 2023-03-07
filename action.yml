@@ -29,6 +29,10 @@ inputs:
     description: "What variant and/or flavor is used for build"
     required: true
     default: "devrelease"
+  variant-flavor-apk-path:
+    description: "Where the apk is released based on variant and/or flavor"
+    required: true
+    default: "/android/app/build/outputs/apk/release"
 runs:
   using: "composite"
   steps:
@@ -72,7 +76,7 @@ runs:
       id: sign_app
       uses: r0adkll/sign-android-release@v1
       with:
-        releaseDirectory: ${{ inputs.app-path }}/android/app/build/outputs/apk/release
+        releaseDirectory: ${{ inputs.app-path }}${{ inputs.variant-flavor-apk-path }}
         signingKeyBase64: ${{ inputs.signing-key }}
         alias: ${{ inputs.keystore-alias }}
         keyStorePassword: ${{ inputs.keystore-password }}
