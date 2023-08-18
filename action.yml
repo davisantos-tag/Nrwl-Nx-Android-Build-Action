@@ -70,7 +70,7 @@ runs:
     - name: Generate App APK
       shell: bash
       run: |
-        cd ${{ inputs.app-path }}/android && ENVFILE=.env.${{ inputs.variant-flavor }} ./gradlew app:assemble${{ inputs.variant-flavor }}release --no-daemon
+        cd ${{ inputs.app-path }}/android && ENVFILE=.env.${{ inputs.variant-flavor == '' && 'release' || inputs.variant-flavor }} ./gradlew app:assemble${{ inputs.variant-flavor }}release --no-daemon
 
     - name: Sign APK ## sign generated apk
       id: sign_app
